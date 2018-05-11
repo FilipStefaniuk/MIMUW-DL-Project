@@ -12,11 +12,11 @@ class ExampleModel(BaseModel):
         self.is_training = tf.placeholder(tf.bool)
 
         self.x = tf.placeholder(tf.float32, shape=[None] + self.config.state_size)
-        self.y = tf.placeholder(tf.float32, shape=[None, 10])
+        self.y = tf.placeholder(tf.float32, shape=[None, 4])
 
         # network architecture
-        d1 = tf.layers.dense(self.x, 512, activation=tf.nn.relu, name="dense1")
-        d2 = tf.layers.dense(d1, 10, name="dense2")
+        d1 = tf.layers.dense(self.x, 64, activation=tf.nn.relu, name="dense1")
+        d2 = tf.layers.dense(d1, 4, name="dense2")
 
         with tf.name_scope("loss"):
             self.cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=self.y, logits=d2))
