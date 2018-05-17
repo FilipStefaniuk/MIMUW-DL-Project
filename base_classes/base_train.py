@@ -10,9 +10,11 @@ class BaseTrain:
         self.data = data
         self.init = tf.group(tf.global_variables_initializer(), tf.local_variables_initializer())
         self.sess.run(self.init)
+        self.model.load(sess)
 
     def train(self):
-        for _ in range(self.model.cur_epoch_tensor.eval(self.sess), self.config.num_epochs + 1, 1):
+        self.sess.run(self.model.reset_cur_epoch_tensor)
+        for _ in range(1, self.config.num_epochs + 1, 1):
             self.train_epoch()
             self.sess.run(self.model.increment_cur_epoch_tensor)
 

@@ -9,21 +9,22 @@ class DataGenerator:
         self.num_parallel_threads = config['num_parallel_threads']
         filenames = os.listdir(directory)
         test_filenames = [os.path.join(directory, file) for file in filenames if file.startswith('test')]
-        validation_filenames = [os.path.join(directory, file) for file in filenames if file.startswith('validation')]
-        train_filenames = [os.path.join(directory, file) for file in filenames if file.startswith('train')]
+        validation_filenames = [os.path.join(directory, file) for file in filenames if file.startswith('validation')][:1]
+        train_filenames = [os.path.join(directory, file) for file in filenames if file.startswith('train')][:1]
         assert test_filenames
         assert validation_filenames
         assert train_filenames
         self.test = self._read_dataset(test_filenames)
-        self.validation = self._read_dataset(validation_filenames)
+        self.validation_iterator = self._read_dataset(validation_filenames).batch(batch_size).make_initializable_iterator()
+        self.validation_next = self.validation_iterator.get_next()
         self.train = self._read_dataset(train_filenames)
         batch_train = self.train.apply(tf.contrib.data.shuffle_and_repeat(2 * batch_size, None))
         batch_train = batch_train.batch(batch_size).prefetch(1)
-        self._batch_train_iterator = batch_train.make_one_shot_iterator()
+        self.next_batch_node = batch_train.make_one_shot_iterator().get_next()
         self.config = config
 
     def next_batch(self, unused_argument=None):
-        return self._batch_train_iterator.get_next()
+        return self.next_batch_node
 
     def _parse_image(self, example_proto):
         features = {

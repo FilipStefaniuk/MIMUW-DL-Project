@@ -24,13 +24,14 @@ class BaseModel:
         if latest_checkpoint:
             print("Loading model checkpoint {} ...\n".format(latest_checkpoint))
             self.saver.restore(sess, latest_checkpoint)
-            print("Model loaded")
+            print("Model loaded, global step is {}".format(self.global_step_tensor.eval(sess)))
 
     # just initialize a tensorflow variable to use it as epoch counter
     def init_cur_epoch(self):
         with tf.variable_scope('cur_epoch'):
-            self.cur_epoch_tensor = tf.Variable(0, trainable=False, name='cur_epoch')
+            self.cur_epoch_tensor = tf.Variable(1, trainable=False, name='cur_epoch')
             self.increment_cur_epoch_tensor = tf.assign(self.cur_epoch_tensor, self.cur_epoch_tensor + 1)
+            self.reset_cur_epoch_tensor = tf.assign(self.cur_epoch_tensor, 1)
 
     # just initialize a tensorflow variable to use it as global step counter
     def init_global_step(self):
