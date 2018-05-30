@@ -26,6 +26,15 @@ class DataGenerator:
     def next_batch(self, unused_argument=None):
         return self.next_batch_node
 
+    def augment(self, image):
+        image = tf.image.resize_images(image, size=(256, 256), method=tf.image.ResizeMethod.NEAREST_NEIGHBOR)
+        return image
+        # data = tf.concat([image, label], axis=2)
+        # data = tf.image.resize_images(data, size=(256, 256), method=tf.image.ResizeMethod.NEAREST_NEIGHBOR)
+        # image = data[:, :, :-1]
+        # label = data[:, :, -1:]
+        # return image, label
+
     def _parse_image(self, example_proto):
         features = {
             "image/encoded": tf.FixedLenFeature([], tf.string),
@@ -36,6 +45,7 @@ class DataGenerator:
         parsed_features = tf.parse_single_example(example_proto, features)
         image = tf.image.decode_jpeg(parsed_features["image/encoded"], channels=3)
         label = parsed_features["image/class/label"]
+        image, label = self.augment(image)
         label = tf.one_hot(label, depth=4)
         return image, label
 
