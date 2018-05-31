@@ -25,7 +25,10 @@ class MyModel(BaseModel):
         d1 = tf.layers.dense(reshaped, 64, activation=tf.nn.relu, name="dense1")
         d2 = tf.layers.dense(d1, 4, name="dense2")
         
+        self.labels = tf.argmax(self.y, 1)
+        self.predictions = tf.argmax(d2, 1)
         
+
         with tf.name_scope("loss"):
             self.loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=self.y, logits=d2))
             self.train_step = tf.train.AdamOptimizer(self.config.learning_rate).minimize(self.loss,
