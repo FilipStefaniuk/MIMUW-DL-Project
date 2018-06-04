@@ -45,7 +45,7 @@ class DataGenerator:
         parsed_features = tf.parse_single_example(example_proto, features)
         image = tf.image.decode_jpeg(parsed_features["image/encoded"], channels=3)
         label = parsed_features["image/class/label"]
-        image, label = self.augment(image)
+        image = self.augment(image)
         label = tf.one_hot(label, depth=4)
         return image, label
 
