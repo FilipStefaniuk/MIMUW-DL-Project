@@ -9,8 +9,8 @@ class DataGenerator:
         self.num_parallel_threads = config['num_parallel_threads']
         filenames = os.listdir(directory)
         test_filenames = [os.path.join(directory, file) for file in filenames if file.startswith('test')]
-        validation_filenames = [os.path.join(directory, file) for file in filenames if file.startswith('validation')][:1]
-        train_filenames = [os.path.join(directory, file) for file in filenames if file.startswith('train')][:1]
+        validation_filenames = [os.path.join(directory, file) for file in filenames if file.startswith('validation')]
+        train_filenames = [os.path.join(directory, file) for file in filenames if file.startswith('train')]
         assert test_filenames
         assert validation_filenames
         assert train_filenames
