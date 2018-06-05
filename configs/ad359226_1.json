@@ -1,0 +1,12 @@
+{
+  "exp_name": "ad359226_1",
+  "data_dir": "/run/media/ad359226/Seagate Expansion Drive/dane/tfrecords",
+  "num_epochs": 20,
+  "num_iter_per_epoch": 20,
+  "learning_rate": 0.001,
+  "validate": false,
+  "save_model": true,
+  "batch_size": 16,
+  "max_to_keep":1,
+  "num_parallel_threads": 8
+}
