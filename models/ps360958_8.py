@@ -17,13 +17,17 @@ class MyModel(BaseModel):
         
         
         c1 = tf.layers.conv2d(self.x, 8, (5,5), activation=tf.nn.relu, name="conv1")
-        mp1 = tf.layers.max_pooling2d(c1, 5, 5, name="maxpool1")
+        bn1 = tf.layers.batch_normalization(c1, name="bn1")
+        mp1 = tf.layers.max_pooling2d(bn1, 5, 5, name="maxpool1")
         c2 = tf.layers.conv2d(mp1, 16, (5,5), activation=tf.nn.relu, name="conv2")
-        mp2 = tf.layers.max_pooling2d(c2, 5, 5, name="maxpool2")
+        bn2 = tf.layers.batch_normalization(c2, name="bn2")
+        mp2 = tf.layers.max_pooling2d(bn2, 5, 5, name="maxpool2")
         # network architecture
         reshaped = tf.reshape(mp2, [-1, mp2.shape[1] * mp2.shape[2] * mp2.shape[3]], name="reshape")
         d1 = tf.layers.dense(reshaped, 64, activation=tf.nn.relu, name="dense1")
-        d2 = tf.layers.dense(d1, 4, name="dense2")
+        bn3 = tf.layers.batch_normalization(d1, name="bn3")
+        d15 = tf.layers.dense(bn3, 32, activation=tf.nn.relu, name="dense1.5")
+        d2 = tf.layers.dense(d15, 4, name="dense2")
         
         self.labels = tf.argmax(self.y, 1)
         self.predictions = tf.argmax(d2, 1)
