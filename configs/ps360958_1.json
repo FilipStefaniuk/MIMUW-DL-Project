@@ -1,5 +1,5 @@
 {
-  "exp_name": "ps360958",
+  "exp_name": "ps360958_1",
   "data_dir": "/slow/MOP-tfrecords/",
   "num_epochs": 3,
   "num_iter_per_epoch": 1000,
