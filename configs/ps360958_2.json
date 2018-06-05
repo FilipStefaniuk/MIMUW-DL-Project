@@ -1,0 +1,12 @@
+{
+  "exp_name": "ps360958_2",
+  "data_dir": "/slow/MOP-tfrecords/",
+  "num_epochs": 15,
+  "num_iter_per_epoch": 10000,
+  "learning_rate": 0.001,
+  "validate": false,
+  "save_model": true,
+  "batch_size": 1,
+  "max_to_keep":1,
+  "num_parallel_threads": 8
+}
