@@ -11,7 +11,7 @@ class MyModel(BaseModel):
     def build_model(self):
         self.is_training = tf.placeholder(tf.bool)
 
-        self.x = tf.placeholder(tf.float32, shape=[None, 720, 1280, 3])
+        self.x = tf.placeholder(tf.float32, shape=[None, 256, 256, 3])
         self.y = tf.placeholder(tf.float32, shape=[None, 4])
         
         
