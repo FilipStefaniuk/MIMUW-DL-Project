@@ -2,12 +2,12 @@ import tensorflow as tf
 
 from data_loader.ad359226_data_generator import DataGenerator
 from models.example_model import ExampleModel
-from trainers.simple_trainer import SimpleTrainer 
+from trainers.ad359226_trainer import SimpleTrainer 
 from utils.config import process_config
 from utils.dirs import create_dirs
 from utils.logger import Logger
 from utils.utils import get_args
-from models.ad359226_1 import MyModel
+from models.ad359226_2 import MyModel
 
 
 def main():
