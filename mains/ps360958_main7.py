@@ -2,7 +2,7 @@ import tensorflow as tf
 
 from data_loader.data_generator import DataGenerator
 from models.example_model import ExampleModel
-from trainers.simple_trainer import SimpleTrainer 
+from trainers.simple_trainer import SimpleTrainer
 from utils.config import process_config
 from utils.dirs import create_dirs
 from utils.logger import Logger
@@ -38,7 +38,7 @@ def main():
 
     # here you train your model
     trainer.train()
-    trainer.validate(1)
+    trainer.validate()
 
 
 if __name__ == '__main__':

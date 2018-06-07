@@ -1,6 +1,6 @@
 from base_classes.base_train import BaseTrain
 from sklearn.metrics import precision_recall_fscore_support as score
-from sklearn.metrics import confusion_matrix, roc_auc_score
+from sklearn.metrics import confusion_matrix, roc_auc_score, accuracy_score
 from texttable import Texttable
 from tqdm import tqdm
 import tensorflow as tf
@@ -24,9 +24,9 @@ class SimpleTrainer(BaseTrain):
 
         
         for _ in loop:
-            label, prediction, loss, acc = self.train_step()
+            label, prediction, loss = self.train_step()
             losses.append(loss)
-            accs.append(acc)
+            accs.append(accuracy_score(np.argmax(label, 1), np.argmax(prediction, 1)))
 
         loss = np.mean(losses)
         acc = np.mean(accs)
@@ -38,7 +38,7 @@ class SimpleTrainer(BaseTrain):
         print("============================================")
         print("GLOBAL_STEP {}".format(cur_it))
         print("LOSS: {}".format(loss))
-        print("ACCURACY: {}".format(acc))
+        print("ACCURACY: {0}".format(acc))
 
         summaries_dict = {
             'loss': loss,
@@ -54,109 +54,113 @@ class SimpleTrainer(BaseTrain):
             self.model.save(self.sess)
 
     def train_step(self):
-        batch_x, batch_y = self.sess.run(self.data.next_batch(self.config.batch_size))
+        batch_x, batch_y = self.sess.run(self.data.train_next_batch)
         feed_dict = {self.model.x: batch_x, self.model.y: batch_y, self.model.is_training: True}
-        _, labels, preds, loss, acc = self.sess.run([self.model.train_step, self.model.labels, self.model.predictions, self.model.loss, self.model.accuracy],
+        _, labels, preds, loss = self.sess.run([self.model.train_step, self.model.labels, self.model.predictions, self.model.loss],
                                      feed_dict=feed_dict)
-        return labels, preds, loss, acc
+        return labels, preds, loss
 
-    # def build_metrics(self):
-    #     labels = tf.argmax(self.model.y, -1)
-    #     predictions = tf.argmax(self.model.predictions)
+    def validate(self):
 
-    #     with tf.variable_scope("metrics"):
-
-    #         acc, acc_op = tf.metrics.accuracy(labels, predictions)
-    #         auc, auc_op = tf.metrics.auc(labels, predictions)
-    #         prec, prec_op = tf.metrics.precision(tf.one_hot(labels, 1), tf.one_hot(predictions, 1))
-    #         recall, recall_op = tf.metrics.recall(tf.one_hot(labels, 1), tf.one_hot(predictions, 1))
-
-    #         per_class = []
-    #         per_class_op = []
-    #         for k in range(5):
-    #             prec, prec_op = tf.metrics.precision(labels=tf.equal(labels, k), predictions=tf.equal(predictions, k))
-    #             rec, rec_op = tf.metrics.recall(labels=tf.equal(labels, k), predictions=tf.equal(predictions, k))
-    #             per_class.append([prec, rec])
-    #             per_class_op.append([prec_op, rec_op])
-
-
-    #         self.metrics = [acc, auc, prec, recall, per_class]
-    #         self.update_ops = [acc_op, auc_op, prec_op, recall_op, per_class_op]
-
-    #     self.reset_metrics = tf.variables_initializer(
-    #         tf.get_collection(tf.GraphKeys.LOCAL_VARIABLES, scope="metrics"))
-
-
-    def validate(self, cur_it):
-        losses = []
-        accs = []
-        labels = np.array([], dtype=np.int32)
-        predictions = np.array([], dtype=np.int32)
-
+        cur_it = self.model.global_step_tensor.eval(self.sess)
         self.sess.run(self.data.validation_iterator.initializer)
-        # self.sess.run(self.reset_metrics)
+
+        labels = []
+        predictions = []
 
         i = 0
         while True:
 
             try:
-                validation_x, validation_y = self.sess.run(self.data.validation_next)
-                feed_dict = {self.model.x: validation_x, self.model.y: validation_y, self.model.is_training: False}
-                label, prediction, loss, acc = self.sess.run([self.model.labels, self.model.predictions, self.model.loss, self.model.accuracy], feed_dict=feed_dict)
-                
-                losses.append(loss)
-                accs.append(acc)
+                data_x, data_y = self.sess.run(self.data.validation_next_batch)
 
-                labels = np.append(labels, label)
-                predictions = np.append(predictions, prediction)
-            
+                prediction = np.zeros(data_y.shape)
+                for j in range(data_x.shape[0]):
+                    feed_dict = {self.model.x: data_x[j], self.model.is_training: False}
+                    prediction += self.sess.run(self.model.predictions, feed_dict=feed_dict)
+                
+                predictions.append(np.argmax(prediction, 1))
+                labels.append(np.argmax(data_y, 1))
+
                 i += 1
+            
+                # if i > 10:
+                    # break
+
             except tf.errors.OutOfRangeError:
                 break
 
-        loss, acc = np.mean(losses), np.mean(accs)
-        
-        summaries_dict = {
-            'loss': loss,
-            'acc': acc,
-        }
+        labels = np.concatenate(labels)
+        predictions = np.concatenate(predictions)
+        metrics = self._compute_metrics(labels, predictions)
 
-        class_metrics, confusion_m, avg_acc = self.per_class_metrics(labels, predictions)
+        t1 = self._make_metric_table(metrics)
+        t2 = self._make_confusion_table(labels, predictions)
+        
+        # summaries_dict = {
+        #     'loss': loss,
+        #     'acc': acc,
+        # }
+
         print("============================================")
         print("VALIDATION")
         print("============================================")
-        print("LOSS: {}".format(loss))
-        print("ACCURACY: {}".format(acc))
-        print("AVG_ACC_PER_CLASS: {}".format(avg_acc))
+        print("GLOBAL_STEP: {}".format(cur_it))
+        print("ACCURACY: {}".format(metrics['ACC']))
+        print("AVG_ACC_PER_CLASS: {}".format(metrics['AVG_ACC']))
         print("PER_CLASS_METRICS:")
-        print(class_metrics.draw())
+        print(t1.draw())
         print("CONFUSION_MATRIX:")
-        print(confusion_m.draw())
+        print(t2.draw())
 
-        self.logger.summarize(cur_it, summaries_dict=summaries_dict, summarizer="test")
+        # self.logger.summarize(cur_it, summaries_dict=summaries_dict, summarizer="test")
 
-    def per_class_metrics(self, labels, predictions):
-
+    def _compute_metrics(self, labels, predictions):
         _, counts = np.unique(labels, return_counts=True)
-        precision, recall, _, _ = score(labels, predictions)
-        C = confusion_matrix(labels, predictions)
-        avg_acc_per_class = np.average(recall)
+        acc = accuracy_score(labels, predictions)
+        prec, rec, f1, _ = score(labels, predictions)
+
+        return {
+            'COUNT': counts,
+            'ACC': acc,
+            'AVG_ACC': np.average(rec),
+            'PRECISION': prec,
+            'RECALL': rec,
+            'F1_SCORE': f1
+        }
+    
+    def _make_classes_header(self):
+        header = []
+        if 'CAR' not in self.config.remove_class:
+            header.append('CAR')
+        if 'BUS' not in self.config.remove_class:
+            header.append('BUS')
+        if 'TRUCK' not in self.config.remove_class:
+            header.append('TRUCK')
+        if 'OTHER' not in self.config.remove_class:
+            header.append('OTHER')
+        return header
+
+    def _make_metric_table(self, metrics):
+        header = ['Metric']
+        header += self._make_classes_header()
 
         t = Texttable()
         t.add_rows([
-            ['Metric', 'CAR', 'BUS', 'TRUCK', 'OTHER'],
-            ['Count labels'] + counts.tolist(),
-            ['Precision'] + precision.tolist(),
-            ['Recall'] + recall.tolist()
+            header,
+            ['Count labels'] + metrics['COUNT'].tolist(),
+            ['Precision'] + metrics['PRECISION'].tolist(),
+            ['Recall'] + metrics['RECALL'].tolist(),
+            ['F1 score'] + metrics['F1_SCORE'].tolist()
         ])
 
-        t2 = Texttable()
-        t2.add_rows([
-            ['-', 'CAR', 'BUS', 'TRUCK', 'OTHER'],
-            ['CAR'] + C[0].tolist(),
-            ['BUS'] + C[1].tolist(),
-            ['TRUCK'] + C[2].tolist(),
-            ['OTHER'] + C[3].tolist()
-        ])
+        return t
 
-        return t, t2, avg_acc_per_class
+    def _make_confusion_table(self, labels, predictions):
+        header = self._make_classes_header()
+        C = confusion_matrix(labels, predictions)
+        t = Texttable()
+        t.add_row(['-'] + header)
+        for i, h in enumerate(header):
+            t.add_row([h] + C[i].tolist())
+        return t

@@ -9,10 +9,13 @@ class MyModel(BaseModel):
         self.init_saver()
 
     def build_model(self):
+
+        labels_len = 4 - len(self.config.remove_class)
+
         self.is_training = tf.placeholder(tf.bool)
 
-        self.x = tf.placeholder(tf.float32, shape=[None, 256, 256, 3])
-        self.y = tf.placeholder(tf.float32, shape=[None, 4])
+        self.x = tf.placeholder(tf.float32, shape=[None, self.config.input_size, self.config.input_size, 3])
+        self.y = tf.placeholder(tf.float32, shape=[None, labels_len])
         
         
         
@@ -27,19 +30,15 @@ class MyModel(BaseModel):
         d1 = tf.layers.dense(reshaped, 64, activation=tf.nn.relu, name="dense1")
         bn3 = tf.layers.batch_normalization(d1, name="bn3")
         d15 = tf.layers.dense(bn3, 32, activation=tf.nn.relu, name="dense1.5")
-        d2 = tf.layers.dense(d15, 4, name="dense2")
+        d2 = tf.layers.dense(d15, labels_len, name="dense2")
         
-        self.labels = tf.argmax(self.y, 1)
-        self.predictions = tf.argmax(d2, 1)
+        self.labels = self.y
+        self.predictions = d2
         
-
         with tf.name_scope("loss"):
             self.loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=self.y, logits=d2))
             self.train_step = tf.train.AdamOptimizer(self.config.learning_rate).minimize(self.loss,
                                                                                          global_step=self.global_step_tensor)
-            correct_prediction = tf.equal(tf.argmax(d2, 1), tf.argmax(self.y, 1))
-            self.accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-
 
     def init_saver(self):
         # here you initialize the tensorflow saver that will be used in saving the checkpoints.

@@ -36,7 +36,7 @@ def main():
 
     # here you train your model
     trainer.train()
-    trainer.validate(1)
+    trainer.validate()
 
 
 if __name__ == '__main__':
