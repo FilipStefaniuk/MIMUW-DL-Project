@@ -72,9 +72,13 @@ class DataGenerator:
 
     def _train_augmentation(self, image, label):
 
+    
+        if "ROTATION" in self.config.augmentation:
+            image = tf.contrib.image.rotate(image, tf.random_uniform([1], minval=-0.13, maxval=0.13, dtype=tf.float32))
+
         if "HORIZONTAL_FLIP" in self.config.augmentation:
             image = tf.image.random_flip_left_right(image)
-
+    
         return image, label
 
     def _validation_augmentation(self, image, label):
