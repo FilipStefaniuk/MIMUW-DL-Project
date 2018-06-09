@@ -96,11 +96,6 @@ class SimpleTrainer(BaseTrain):
 
         t1 = self._make_metric_table(metrics)
         t2 = self._make_confusion_table(labels, predictions)
-        
-        # summaries_dict = {
-        #     'loss': loss,
-        #     'acc': acc,
-        # }
 
         print("============================================")
         print("VALIDATION")
@@ -119,10 +114,7 @@ class SimpleTrainer(BaseTrain):
         val_summaries_dict.update({'PRECISION_' + h: v for h, v in zip(header, metrics['PRECISION'])})
         val_summaries_dict.update({'RECALL_' + h: v for h, v in zip(header, metrics['RECALL'])})
         val_summaries_dict.update({'F1_SCORE_' + h: v for h, v in zip(header, metrics['F1_SCORE'])})
-        # val_summaries_dict = {
-        #     'loss': loss,
-        #     'acc': acc,
-        # }
+        val_summaries_dict.update({'GLOBAL_STEP': np.int64(cur_it), 'ACCURACY': metrics['ACC'], 'AVG_ACC_PER_CLASS': metrics['AVG_ACC']})
         self.logger.summarize(step=cur_it, summarizer="test", summaries_dict=val_summaries_dict)
         # self.logger.summarize(cur_it, summaries_dict=summaries_dict, summarizer="test")
 
