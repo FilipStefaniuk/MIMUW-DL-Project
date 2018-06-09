@@ -115,10 +115,10 @@ class SimpleTrainer(BaseTrain):
 
         header = self._make_classes_header()
         val_summaries_dict = {}
-        val_summaries_dict.update({'COUNT_' + h: v for h, v in zip(header, metrics['COUNT'].tolist())})
-        val_summaries_dict.update({'PRECISION_' + h: v for h, v in zip(header, metrics['PRECISION'].tolist())})
-        val_summaries_dict.update({'RECALL_' + h: v for h, v in zip(header, metrics['RECALL'].tolist())})
-        val_summaries_dict.update({'F1_SCORE_' + h: v for h, v in zip(header, metrics['F1_SCORE'].tolist())})
+        val_summaries_dict.update({'COUNT_' + h: v for h, v in zip(header, metrics['COUNT'])})
+        val_summaries_dict.update({'PRECISION_' + h: v for h, v in zip(header, metrics['PRECISION'])})
+        val_summaries_dict.update({'RECALL_' + h: v for h, v in zip(header, metrics['RECALL'])})
+        val_summaries_dict.update({'F1_SCORE_' + h: v for h, v in zip(header, metrics['F1_SCORE'])})
         # val_summaries_dict = {
         #     'loss': loss,
         #     'acc': acc,
