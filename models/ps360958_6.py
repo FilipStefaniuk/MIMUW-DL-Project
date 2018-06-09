@@ -53,15 +53,15 @@ class MyModel(BaseModel):
                 d3 = tf.layers.dense(d2, 2, name="dense3")
 
         signal = d3
-        self.labels = tf.argmax(self.y, 1)
-        self.predictions = tf.argmax(signal, 1)
+        self.labels = self.y
+        self.predictions = signal
         
 
         with tf.name_scope("loss"):
             self.loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=self.y, logits=signal))
             self.train_step = tf.train.AdamOptimizer(self.config.learning_rate).minimize(self.loss,
                                                                                          global_step=self.global_step_tensor,
-                                                                                        var_list=tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope='new'))
+                                                                                        var_list=tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope='ps360958_6_part'))
             correct_prediction = tf.equal(tf.argmax(signal, 1), tf.argmax(self.y, 1))
             self.accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
