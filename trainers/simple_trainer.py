@@ -48,7 +48,7 @@ class SimpleTrainer(BaseTrain):
         self.logger.summarize(step=cur_it, summarizer="train", summaries_dict=train_summaries_dict)
         
         if self.config.validate:
-            self.validate(cur_it)
+            self.validate()
         
         if self.config.save_model:
             self.model.save(self.sess)
