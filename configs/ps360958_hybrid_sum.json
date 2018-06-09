@@ -1,5 +1,5 @@
 {
-  "exp_name": "ps360958_5_part",
+  "exp_name": "ps360958_hybrid_sum",
   "data_dir": "/slow/MOP-tfrecords/",
   "input_size": 256,
   "remove_class": ["BUS", "OTHER"],
@@ -8,8 +8,8 @@
   "learning_rate": 0.001,
   "validate": false,
   "save_model": true,
-  "batch_size": 128,
-  "num_epochs": 1,
+  "batch_size": 64,
+  "num_epochs": 20,
   "num_iter_per_epoch": 80,
   "max_to_keep":1,
   "num_parallel_threads": 8
