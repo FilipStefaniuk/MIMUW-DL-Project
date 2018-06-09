@@ -40,12 +40,12 @@ class SimpleTrainer(BaseTrain):
         print("LOSS: {}".format(loss))
         print("ACCURACY: {0}".format(acc))
 
-        summaries_dict = {
+        train_summaries_dict = {
             'loss': loss,
             'acc': acc,
         }
 
-        self.logger.summarize(cur_it, summaries_dict=summaries_dict)
+        self.logger.summarize(step=cur_it, summarizer="train", summaries_dict=train_summaries_dict)
         
         if self.config.validate:
             self.validate(cur_it)
@@ -113,6 +113,17 @@ class SimpleTrainer(BaseTrain):
         print("CONFUSION_MATRIX:")
         print(t2.draw())
 
+        header = self._make_classes_header()
+        val_summaries_dict = {}
+        val_summaries_dict.update = {'COUNT_' + h: v for h, v in zip(header, metrics['COUNT'].tolist())}
+        val_summaries_dict.update = {'PRECISION_' + h: v for h, v in zip(header, metrics['PRECISION'].tolist())}
+        val_summaries_dict.update = {'RECALL_' + h: v for h, v in zip(header, metrics['RECALL'].tolist())}
+        val_summaries_dict.update = {'F1_SCORE_' + h: v for h, v in zip(header, metrics['F1_SCORE'].tolist())}
+        # val_summaries_dict = {
+        #     'loss': loss,
+        #     'acc': acc,
+        # }
+        self.logger.summarize(step=cur_it, summarizer="test", summaries_dict=val_summaries_dict)
         # self.logger.summarize(cur_it, summaries_dict=summaries_dict, summarizer="test")
 
     def _compute_metrics(self, labels, predictions):
