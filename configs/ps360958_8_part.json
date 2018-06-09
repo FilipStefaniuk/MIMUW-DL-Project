@@ -1,16 +1,16 @@
 {
-  "exp_name": "ps360958_8",
+  "exp_name": "ps360958_8_part",
   "data_dir": "/slow/MOP-tfrecords/",
-  "num_epochs": 1,
   "input_size": 256,
   "remove_class": ["BUS", "OTHER"],
   "augmentation": ["HORIZONTAL_FLIP", "ROTATION"],
   "validation_augmentation": true,
-  "num_iter_per_epoch": 2,
   "learning_rate": 0.001,
   "validate": false,
   "save_model": true,
-  "batch_size": 8,
+  "batch_size": 256,
+  "num_epochs": 20,
+  "num_iter_per_epoch": 80,
   "max_to_keep":1,
   "num_parallel_threads": 8
 }
