@@ -35,10 +35,10 @@ class MyModel(BaseModel):
             self.labels = self.y
             self.predictions = d2
 
-            with tf.name_scope("loss"):
-                self.loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=self.y, logits=d2))
-                self.train_step = tf.train.AdamOptimizer(self.config.learning_rate).minimize(self.loss,
-                                                                                             global_step=self.global_step_tensor)
+        with tf.name_scope("loss"):
+            self.loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=self.y, logits=d2))
+            self.train_step = tf.train.AdamOptimizer(self.config.learning_rate).minimize(self.loss,
+                                                                                         global_step=self.global_step_tensor)
 
     def init_saver(self):
         # here you initialize the tensorflow saver that will be used in saving the checkpoints.
