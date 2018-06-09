@@ -99,22 +99,25 @@ class DataGenerator:
         assert validation_filenames
         assert train_filenames
 
-        self.train = self._read_dataset(train_filenames)
-        self.train = self.train.apply(tf.contrib.data.shuffle_and_repeat(2 * self.config.batch_size, None))
-        self.train = self.train.map(self._train_augmentation)
-        self.train = self.train.batch(self.config.batch_size).prefetch(1)
+        with tf.name_scope('train_data_generator'):
+            self.train = self._read_dataset(train_filenames)
+            self.train = self.train.apply(tf.contrib.data.shuffle_and_repeat(2 * self.config.batch_size, None))
+            self.train = self.train.map(self._train_augmentation)
+            self.train = self.train.batch(self.config.batch_size).prefetch(1)
 
-        self.train_next_batch = self.train.make_one_shot_iterator().get_next()
+            self.train_next_batch = self.train.make_one_shot_iterator().get_next()
 
-        self.validation = self._read_dataset(validation_filenames)
-        self.validation = self.validation.batch(self.config.batch_size)
-        self.validation = self.validation.map(self._validation_augmentation, num_parallel_calls=self.config.num_parallel_threads)
+        with tf.name_scope('validation_data_generator'):
+            self.validation = self._read_dataset(validation_filenames)
+            self.validation = self.validation.batch(self.config.batch_size)
+            self.validation = self.validation.map(self._validation_augmentation, num_parallel_calls=self.config.num_parallel_threads)
 
-        self.validation_iterator = self.validation.make_initializable_iterator()
-        self.validation_next_batch = self.validation_iterator.get_next()
-        
-        self.test = self._read_dataset(test_filenames)
-        self.test = self.test.batch(self.config.batch_size)
+            self.validation_iterator = self.validation.make_initializable_iterator()
+            self.validation_next_batch = self.validation_iterator.get_next()
 
-        self.test_iterator = self.test.make_initializable_iterator()
-        self.test_next_batch = self.test_iterator.get_next()
+        with tf.name_scope('test_data_generator'):
+            self.test = self._read_dataset(test_filenames)
+            self.test = self.test.batch(self.config.batch_size)
+
+            self.test_iterator = self.test.make_initializable_iterator()
+            self.test_next_batch = self.test_iterator.get_next()
