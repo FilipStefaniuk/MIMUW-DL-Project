@@ -114,7 +114,7 @@ class SimpleTrainer(BaseTrain):
         val_summaries_dict.update({'PRECISION_' + h: v for h, v in zip(header, metrics['PRECISION'])})
         val_summaries_dict.update({'RECALL_' + h: v for h, v in zip(header, metrics['RECALL'])})
         val_summaries_dict.update({'F1_SCORE_' + h: v for h, v in zip(header, metrics['F1_SCORE'])})
-        val_summaries_dict.update({'GLOBAL_STEP': np.int64(cur_it), 'ACCURACY': metrics['ACC'], 'AVG_ACC_PER_CLASS': metrics['AVG_ACC']})
+        val_summaries_dict.update({'ACCURACY': metrics['ACC'], 'AVG_ACC_PER_CLASS': metrics['AVG_ACC']})
         # val_summaries_dict = {'COUNT': metrics['COUNT'], 'PRECISION': metrics['PRECISION'], 'RECALL': metrics['RECALL'], 'F1_SCORE': metrics['F1_SCORE']}
         self.logger.summarize(step=cur_it, summarizer="test", summaries_dict=val_summaries_dict)
         # self.logger.summarize(cur_it, summaries_dict=summaries_dict, summarizer="test")

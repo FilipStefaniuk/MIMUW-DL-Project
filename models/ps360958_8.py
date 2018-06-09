@@ -15,8 +15,8 @@ class MyModel(BaseModel):
         self.is_training = tf.placeholder(tf.bool)
 
         with tf.name_scope('network'):
-            self.x = tf.placeholder(tf.float32, shape=[None, self.config.input_size, self.config.input_size, 3])
-            self.y = tf.placeholder(tf.float32, shape=[None, labels_len])
+            self.x = tf.placeholder(tf.float32, shape=[None, self.config.input_size, self.config.input_size, 3], name='images')
+            self.y = tf.placeholder(tf.float32, shape=[None, labels_len], name='labels')
 
 
             c1 = tf.layers.conv2d(self.x, 8, (5,5), activation=tf.nn.relu, name="conv1")
@@ -34,11 +34,11 @@ class MyModel(BaseModel):
 
             self.labels = self.y
             self.predictions = d2
-        
-        with tf.name_scope("loss"):
-            self.loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=self.y, logits=d2))
-            self.train_step = tf.train.AdamOptimizer(self.config.learning_rate).minimize(self.loss,
-                                                                                         global_step=self.global_step_tensor)
+
+            with tf.name_scope("loss"):
+                self.loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=self.y, logits=d2))
+                self.train_step = tf.train.AdamOptimizer(self.config.learning_rate).minimize(self.loss,
+                                                                                             global_step=self.global_step_tensor)
 
     def init_saver(self):
         # here you initialize the tensorflow saver that will be used in saving the checkpoints.
